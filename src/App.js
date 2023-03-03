@@ -1,25 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import Navigation from './components/Navigation';
+import Main from './components/Main';
+import './css/index.css';
+import { BrowserRouter as Router } from 'react-router-dom';
 
-function App() {
+const App = () => {
+  
+  const [navClassName, setNavClassName] = useState(() => {
+    return localStorage.getItem('navClassName') || 'nav';
+  });
+
+  const handleNavClick = () => {
+    setNavClassName((prevClassName) => {
+      const newClassName = prevClassName === 'nav' ? 'nav--collapsed' : 'nav';
+      localStorage.setItem('navClassName', newClassName);
+      return newClassName;
+    });
+  };
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setNavClassName(localStorage.getItem('navClassName'));
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className='container'>
+        <Navigation navClassName={navClassName} />
+        <Main navClassName={navClassName} onNavClick={handleNavClick} />
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;
